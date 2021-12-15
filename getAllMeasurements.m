@@ -98,8 +98,8 @@ for trialnum = 1:length(file_names)
   [t, reflections] = analysis.get_fir_deconvolution(t_ns, signal, calibration_signal);
   csvwrite([output_folder '/' out_names{trialnum} '-fir_impulse.csv'], [t*physconst('LightSpeed')*1e-9*100;20*log(abs(reflections))].');
   
-  figure;
-  plot(t*physconst('LightSpeed')*1e-9*100, 20*log(abs(reflections)));
+%   figure;
+%   plot(t*physconst('LightSpeed')*1e-9*100, 20*log(abs(reflections)));
   
 %   figure;
 %   plot(t, 20*log(abs(reflections)));
