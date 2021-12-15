@@ -68,7 +68,7 @@ if not(isfolder(output_folder))
     mkdir(output_folder)
 end
 
-[t_ns, calibration_signal] = analysis.get_calibration_signal(calibration_file_name, [-1.25, 1.25]);
+[t_ns, calibration_signal] = analysis.get_calibration_signal(calibration_file_name, [-1.25, 1.25], 'length', 'nonzero');
 
 for trialnum = 1:length(file_names) 
   file_name   = file_names{trialnum};
@@ -97,6 +97,9 @@ for trialnum = 1:length(file_names)
 
   [t, reflections] = analysis.get_fir_deconvolution(t_ns, signal, calibration_signal);
   csvwrite([output_folder '/' out_names{trialnum} '-fir_impulse.csv'], [t*physconst('LightSpeed')*1e-9*100;20*log(abs(reflections))].');
+  
+  figure;
+  plot(t*physconst('LightSpeed')*1e-9*100, 20*log(abs(reflections)));
   
 %   figure;
 %   plot(t, 20*log(abs(reflections)));
