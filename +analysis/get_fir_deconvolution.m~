@@ -1,0 +1,19 @@
+function [t, reflections] = get_fir_deconvolution(t_ns, signal, calibration_signal)
+  n1 = length(calibration_signal);
+  d1 = int(floor((n1-1)/2));
+  [h,err] = analysis.spike(calibration_signal,d1,n1);
+  
+  y = filter(h,1,signal);
+
+  n2 = 81;
+  Wn = 0.2;
+  b = fir1(n2,Wn);
+  y2 = filter(b,1,abs(y));
+  d2 = (n2-1)/2;
+
+  ts = mean(diff(t_ns));
+  
+  
+
+  t = t_ns - ts*d2;
+end
