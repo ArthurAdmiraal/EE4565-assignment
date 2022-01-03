@@ -52,6 +52,12 @@ out_names = {'Empty',              ... % experiment 2) 3 metre without people
              'People_nodirect'         % experiment 4) people with reflector
   };
 
+mask_ranges = {
+    [-1.5, 0.5], ... % empty scenario
+    [-1.0, 2.0], ... % sidewards scenario
+    [-1.0, 4.5], ...% people scenario
+  };
+
 if not(isfolder(output_folder))
     mkdir(output_folder)
 end
@@ -70,7 +76,7 @@ for trialnum_major = 1:(length(file_names)/2)
   [t_ns, signal_direct]   = import.get_measurement(file_name_direct);
 
   % align signals
-  signal_nodirect = analysis.align_to_signal(signal_direct, signal_nodirect);
+  signal_nodirect = analysis.align_to_signal(t_ns, signal_direct, signal_nodirect, mask_ranges{trialnum_major});
   
   % write pairs to cell arrays
   signals{2*trialnum_major - 1} = signal_direct;
@@ -110,8 +116,9 @@ for trialnum = 1:length(file_names)
     % normalise with the direct signal, which comes when trialnum%2 = 1
     if mod(trialnum,2)==1
       M = max(reflections);
+      x = t*physconst('LightSpeed')*1e-9*100;
     end
     reflections = reflections / M;
     
-    csvwrite([output_folder '/' out_names{trialnum} '-fir_impulse.csv'], [t*physconst('LightSpeed')*1e-9*100;20*log(abs(reflections))].');
+    csvwrite([output_folder '/' out_names{trialnum} '-fir_impulse.csv'], [x;20*log(abs(reflections))].');
 end
