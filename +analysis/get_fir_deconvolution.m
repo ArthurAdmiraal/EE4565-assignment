@@ -19,4 +19,8 @@ function [t, reflections] = get_fir_deconvolution(t_ns, signal, calibration_sign
 
   ts = mean(diff(t_ns));
   t  = t_ns - ts*(d2+d1);
+  
+  % correct for mistaken pulse start
+  [M,I] = max(reflections);
+  t  = t - t(I);
 end
