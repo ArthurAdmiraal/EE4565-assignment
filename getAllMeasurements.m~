@@ -10,20 +10,23 @@ calibration_file_name = 'mulyipath_nodirect_012.csv';
 cal_start = -1.25;
 cal_stop  =  1.25;
 
-% acquire calibration signal with full length for correct size of spectrum
-[t_ns, calibration_signal] = analysis.get_calibration_signal(calibration_file_name, [cal_start, cal_stop]);
+[t_ns, calibration_signal] = analysis.get_calibration_signal(calibration_file_name, [-1.25, 1.25]);
+
+size(t_ns)
+size(calibration_signal)
+
 [f, cal_spectrum]          = analysis.get_spectrum(t_ns, calibration_signal);
 
-threshold       = 0.05;
+size(f)
+size(cal_spectrum)
+
+threshold = 0.05;
 frequency_range = (f > 0) & (abs(cal_spectrum)/max(abs(cal_spectrum)) > threshold);
 f_start_index   = find(frequency_range, 1, 'first');
 f_end_index     = find(frequency_range, 1, 'last');
 
 f_start = f(f_start_index);
 f_end   = f(f_end_index);
-
-% reacquire calibration signal with mode nonzero for FIR filter
-[t_ns, calibration_signal] = analysis.get_calibration_signal(calibration_file_name, [cal_start, cal_stop], 'length', 'nonzero');
 
 %% data analysis
 output_folder = 'Output';
