@@ -13,22 +13,28 @@ cal_stop  =  1.25;
 [t_ns, calibration_signal] = analysis.get_calibration_signal(calibration_file_name, [-1.25, 1.25], 'length', 'nonzero');
 
 %% data analysis
-[t_ns_full,    signal_full, description]    = get_signal(3);
-[t_ns_blocked, signal_blocked, description] = get_signal(4);
+% load signals in pairs
+% file_name_direct   = file_names  {2*trialnum_major - 1};
+% file_name_nodirect = file_names  {2*trialnum_major - 0};
+% 
+% signal_aligned = analysis.align_to_signal(signal_full, signal_blocked);
+% t_ns           = t_ns_full;
 
-signal_aligned = analysis.align_to_signal(signal_full, signal_blocked);
-t_ns           = t_ns_full;
+[t_ns, signal_direct]   = get_signal(5);
+[~,    signal_nodirect] = get_signal(6);
 
-[t,  reflections_full]    = analysis.get_fir_deconvolution(t_ns, signal_full,    calibration_signal, false);
-[t2, reflections_blocked] = analysis.get_fir_deconvolution(t_ns, signal_aligned, calibration_signal, false);
+signal_nodirect = analysis.align_to_signal(t_ns, signal_direct, signal_nodirect, [-1,4.5]);
+
+[t,  reflections_full]   = analysis.get_fir_deconvolution(t_ns, signal_direct,   calibration_signal, false);
+[~, reflections_blocked] = analysis.get_fir_deconvolution(t_ns, signal_nodirect, calibration_signal, false);
 
 reflections_blocked = reflections_blocked / max(reflections_full);
 reflections_full    = reflections_full    / max(reflections_full);
 
 figure;
 hold on;
-plot(t_ns, signal_full);
-plot(t_ns, signal_aligned);
+plot(t_ns, signal_direct);
+plot(t_ns, signal_nodirect);
 legend('Direct','Blocked');
 title('Aligned time data');
 
