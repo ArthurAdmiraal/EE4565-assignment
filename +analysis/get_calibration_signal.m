@@ -27,5 +27,6 @@ function [t_ns, calibration_signal] = get_calibration_signal(file_name,time_rang
   % cut out zero parts if length mode is nonzero
   if strcmp(p.Results.length, expectedLengths(2))
     calibration_signal = calibration_signal(start_sample:stop_sample);
+    t_ns               = t_ns(start_sample:stop_sample);
   end
 end
