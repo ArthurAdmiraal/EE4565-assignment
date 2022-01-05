@@ -41,8 +41,8 @@ title('Aligned time data');
 figure;
 hold on;
 x = t*physconst('LightSpeed')*1e-9*100;
-plot(x, 20*log(abs(reflections_full)));
-plot(x, 20*log(abs(reflections_blocked)));
+plot(x, 20*log10(abs(reflections_full)));
+plot(x, 20*log10(abs(reflections_blocked)));
 legend('Direct','Blocked');
 title('Side-by-side impulse responses');
   

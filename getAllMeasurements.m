@@ -23,7 +23,7 @@ f_start = f(f_start_index);
 f_end   = f(f_end_index);
 
 % reacquire calibration signal with mode nonzero for FIR filter
-[t_ns, calibration_signal] = analysis.get_calibration_signal(calibration_file_name, [cal_start, cal_stop], 'length', 'nonzero');
+[t_ns_cal, calibration_signal] = analysis.get_calibration_signal(calibration_file_name, [cal_start, cal_stop], 'length', 'nonzero');
 
 %% data analysis
 output_folder = 'Output';
@@ -93,7 +93,10 @@ for trialnum = 1:length(file_names)
     description = descriptions{trialnum};
 
     % write raw time data
-    csvwrite([output_folder '/' out_names{trialnum} '-time.csv'], [t_ns;signal/max(abs(signal))].');
+    if mod(trialnum,2)==1
+      norm = max(abs(signal));
+    end
+    csvwrite([output_folder '/' out_names{trialnum} '-time.csv'], [t_ns;signal/norm].');
 
     % write spectrum of data
     [f, spectrum]  = analysis.get_spectrum(t_ns, signal);
@@ -102,23 +105,27 @@ for trialnum = 1:length(file_names)
     windowed_spectrum = abs(spectrum(f_start_index:f_end_index));
     f                 = f(f_start_index:f_end_index);
 
-    csvwrite([output_folder '/' out_names{trialnum} '-spectrum.csv'], [f;windowed_spectrum].');
+    csvwrite([output_folder '/' out_names{trialnum} '-spectrum.csv'], [f;abs(windowed_spectrum)].');
 
     % write spectrum-estimated impulse response of data
     [t, reflections] = analysis.get_impulse_from_ss(f, windowed_spectrum);
     reflections      = reflections / reflections(1);
 
-    csvwrite([output_folder '/' out_names{trialnum} '-impulse.csv'], [t*physconst('LightSpeed')*1e-9*100;20*log(abs(reflections))].');
+    csvwrite([output_folder '/' out_names{trialnum} '-impulse.csv'], [t*physconst('LightSpeed')*1e-9*100;20*log10(abs(reflections))].');
     
     % write fir deconvolution of data
-    [t, reflections] = analysis.get_fir_deconvolution(t_ns, signal, calibration_signal, false);
+    [t, reflections, t_raw, raw] = analysis.get_fir_deconvolution(t_ns, signal, calibration_signal, false);
+    [t, reflections]             = analysis.get_fir_envelope_deconvolution(t_ns, signal, t_ns_cal, calibration_signal, false);
     
     % normalise with the direct signal, which comes when trialnum%2 = 1
     if mod(trialnum,2)==1
-      M = max(reflections);
-      x = t*physconst('LightSpeed')*1e-9*100;
+      M     = max(reflections);
+      M_raw = max(abs(raw));
+      x     = t     * physconst('LightSpeed')*1e-9*100;
+      x_raw = t_raw * physconst('LightSpeed')*1e-9*100;
     end
     reflections = reflections / M;
     
-    csvwrite([output_folder '/' out_names{trialnum} '-fir_impulse.csv'], [x;20*log(abs(reflections))].');
+    csvwrite([output_folder '/' out_names{trialnum} '-fir_impulse.csv'], [x;20*log10(abs(reflections))].');
+    csvwrite([output_folder '/' out_names{trialnum} '-fir_impulse_raw.csv'], [x_raw;cos(2*pi*3*t_raw).*raw/M_raw].');
 end
